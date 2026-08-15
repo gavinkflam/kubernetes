@@ -353,8 +353,11 @@ function kube::release::create_docker_images_for_server() {
         ln "${binary_file_path}" "${docker_build_path}/${binary_name}"
 
         local build_log="${docker_build_path}/build.log"
+
+        "${DOCKER[@]}" buildx create --name "${binary_name}-${arch}"
         if ! DOCKER_CLI_EXPERIMENTAL=enabled "${DOCKER[@]}" buildx build \
           -f "${docker_file_path}" \
+          --builder "${binary_name}-${arch}" \
           --platform linux/"${arch}" \
           --load ${docker_build_opts:+"${docker_build_opts}"} \
           -t "${docker_image_tag}" \
@@ -366,6 +369,8 @@ function kube::release::create_docker_images_for_server() {
             exit 1
         fi
         rm "${build_log}"
+
+        "${DOCKER[@]}" buildx rm "${binary_name}-${arch}"
 
         # If we are building an official/alpha/beta release we want to keep
         # docker images and tag them appropriately.

@@ -374,6 +374,7 @@ function kube::build::run_build_command_ex() {
     "--name=${container_name}"
     "--hostname=${HOSTNAME}"
     "-e=GOPROXY=${GOPROXY}"
+    "--security-opt=label=disable"
   )
 
   kube::build::is_docker_rootless || docker_run_opts+=("--user=$(id -u):$(id -g)")
